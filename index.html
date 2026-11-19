@@ -135,13 +135,23 @@
       transform: translateY(-90px);
     }
 
-            /* 3D STACKING CARDS ARCHITECTURE */
+                /* ROYAL INVITATION CARDS ARCHITECTURE (100% VISIBLE / NO OVERLAPPING) */
     .stack-cards-container {
       position: relative;
       max-width: 740px;
       margin: 0 auto;
-      padding-top: 10px;
+      padding-top: 15px;
       padding-bottom: 120px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    @media (min-width: 640px) {
+      .stack-cards-container {
+        padding-top: 25px;
+        padding-bottom: 130px;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
     }
     /* Crisp Text Rendering & ClearType Anti-Aliasing */
     * {
@@ -150,51 +160,31 @@
       text-rendering: optimizeLegibility;
     }
     .stack-card {
-      position: sticky;
-      top: 80px;
-      margin-bottom: 50px;
-      transform-origin: center top;
-      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
-      border-radius: 28px;
+      position: relative;
+      margin-bottom: 24px;
+      border-radius: 24px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       text-rendering: optimizeLegibility;
-      transform: translateZ(0);
-      backface-visibility: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(212, 175, 55, 0.15);
+    }
+    @media (min-width: 640px) {
+      .stack-card {
+        margin-bottom: 36px;
+        border-radius: 28px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(212, 175, 55, 0.18);
+      }
     }
     /* Stack Card Depth Accents */
     .stack-card::before {
       content: '';
       position: absolute;
       inset: 0;
-      border-radius: 28px;
-      border: 1.5px solid rgba(212, 175, 55, 0.55);
+      border-radius: inherit;
+      border: 1.5px solid rgba(212, 175, 55, 0.45);
       pointer-events: none;
       z-index: 2;
-    }
-    .stack-card.stacked-behind {
-      opacity: 1 !important;
-      filter: none !important;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.28);
-    }
-
-    @media (max-width: 640px) {
-      .stack-cards-container {
-        padding-top: 5px;
-        padding-bottom: 90px;
-        padding-left: 8px;
-        padding-right: 8px;
-      }
-      .stack-card {
-        top: 50px !important;
-        margin-bottom: 25px;
-        border-radius: 20px;
-        max-height: calc(100vh - 120px);
-        overflow-y: auto;
-      }
-      .stack-card::before {
-        border-radius: 20px;
-      }
     }
 
     /* 3D Interactive Tilt Container */
@@ -1094,29 +1084,14 @@
     const dockButtons = document.querySelectorAll('.dock-btn');
     const stackProgressPill = document.getElementById('stackProgressPill');
 
-    function updateStackCardsOnScroll() {
-      const scrollY = window.scrollY;
+        function updateStackCardsOnScroll() {
       let activeIndex = 0;
+      const viewportCenter = window.innerHeight * 0.4;
 
       stackCards.forEach((card, idx) => {
         const rect = card.getBoundingClientRect();
-        
-        if (rect.top <= 120 && rect.bottom > 120) {
+        if (rect.top <= viewportCenter && rect.bottom >= viewportCenter * 0.5) {
           activeIndex = idx;
-        }
-
-        if (rect.top < 90 && idx < stackCards.length - 1) {
-          const depth = (90 - rect.top) / 400;
-          const scale = Math.max(0.96, 1 - depth * 0.04);
-          card.classList.add('stacked-behind');
-          card.style.transform = `scale(${scale})`;
-          card.style.opacity = '1';
-          card.style.filter = 'none';
-        } else {
-          card.classList.remove('stacked-behind');
-          card.style.transform = 'scale(1)';
-          card.style.opacity = '1';
-          card.style.filter = 'none';
         }
       });
 
@@ -1135,21 +1110,16 @@
       });
     }
 
-    window.addEventListener('scroll', updateStackCardsOnScroll, { passive: true });
-
     function scrollToCard(cardId) {
       const target = document.getElementById(cardId);
       if (target) {
-        const topOffset = target.getBoundingClientRect().top + window.pageYOffset - 75;
+        const topOffset = target.getBoundingClientRect().top + window.pageYOffset - 25;
         window.scrollTo({ top: topOffset, behavior: 'smooth' });
       }
     }
 
-    /**
-     * ============================================================
-     * 2. 3D ENVELOPE OPENING & WAX SEAL PHYSICS
-     * ============================================================
-     */
+    window.addEventListener('scroll', updateStackCardsOnScroll, { passive: true });
+
     const envelopeOverlay = document.getElementById('envelopeOverlay');
     const envelopeBox = document.getElementById('envelopeBox');
 
